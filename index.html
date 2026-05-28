@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caspiana — Калькулятор рассрочки</title>
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f5f7;
+    --surface: #ffffff;
+    --surface-2: #f5f5f7;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.14);
+    --text: #1d1d1f;
+    --text-2: #424245;
+    --text-3: #6e6e73;
+    --text-4: #a1a1a6;
+    --accent: #0071e3;
+    --accent-hover: #0077ed;
+    --accent-light: #e8f0fb;
+    --radius: 18px;
+    --radius-sm: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    min-height: 100vh;
+  }
+
+  .wrapper {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 64px 20px 80px;
+  }
+
+  /* ─── Header ─── */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .logo-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-size: clamp(34px, 6vw, 52px);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .header h1 span { color: var(--text-3); font-weight: 300; }
+
+  .header p {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--text-3);
+    line-height: 1.5;
+  }
+
+  /* ─── Card ─── */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 40px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+    animation: fadeUp 0.7s ease 0.05s both;
+  }
+
+  @media (max-width: 520px) {
+    .card { padding: 28px 20px; }
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
+    letter-spacing: 0.02em;
+    margin-bottom: 14px;
+  }
+
+  /* ─── Area buttons ─── */
+  .area-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .area-btn {
+    background: var(--surface-2);
+    border: 1.5px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 20px 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-family: inherit;
+  }
+
+  .area-btn .sqm {
+    display: block;
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+
+  .area-btn .unit {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-3);
+    letter-spacing: 0.01em;
+  }
+
+  .area-btn:hover {
+    background: #ebebeb;
+  }
+
+  .area-btn.active {
+    background: var(--accent-light);
+    border-color: var(--accent);
+  }
+
+  .area-btn.active .sqm { color: var(--accent); }
+  .area-btn.active .unit { color: var(--accent); opacity: 0.8; }
+
+  /* ─── Separator ─── */
+  .sep {
+    height: 1px;
+    background: var(--border);
+    margin: 32px 0;
+  }
+
+  /* ─── Slider ─── */
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .slider-badge {
+    background: var(--text);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 100px;
+    transition: all 0.2s ease;
+  }
+
+  .slider-sub {
+    font-size: 13px;
+    color: var(--text-3);
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: #e0e0e5;
+    outline: none;
+    border-radius: 100px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.08);
+  }
+
+  input[type=range]::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.22);
+    cursor: pointer;
+  }
+
+  .slider-marks {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .slider-marks span {
+    font-size: 11px;
+    color: var(--text-4);
+    font-weight: 400;
+  }
+
+  /* ─── Period buttons ─── */
+  .period-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .period-btn {
+    background: var(--surface-2);
+    border: 1.5px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 16px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-family: inherit;
+  }
+
+  .period-btn .months {
+    display: block;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .period-btn .period-label {
+    font-size: 11px;
+    color: var(--text-3);
+  }
+
+  .period-btn:hover { background: #ebebeb; }
+
+  .period-btn.active {
+    background: var(--accent-light);
+    border-color: var(--accent);
+  }
+
+  .period-btn.active .months { color: var(--accent); }
+  .period-btn.active .period-label { color: var(--accent); opacity: 0.8; }
+
+  /* ─── Results ─── */
+  .results-block {
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+
+  .results-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 480px) {
+    .results-row { grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
+  }
+
+  .res-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-3);
+    margin-bottom: 4px;
+  }
+
+  .res-val {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .res-sub {
+    font-size: 12px;
+    color: var(--text-4);
+    margin-top: 2px;
+  }
+
+  .results-highlight {
+    background: var(--text);
+    border-radius: 14px;
+    padding: 22px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    transition: all 0.25s ease;
+  }
+
+  .highlight-left .h-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 4px;
+  }
+
+  .highlight-left .h-val {
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: white;
+    line-height: 1;
+  }
+
+  .highlight-right {
+    text-align: right;
+  }
+
+  .highlight-right .h-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 4px;
+  }
+
+  .highlight-right .h-val {
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* ─── CTA ─── */
+  .cta-btn {
+    display: block;
+    width: 100%;
+    padding: 17px 24px;
+    background: var(--accent);
+    color: white;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+  }
+
+  .cta-btn:hover { background: var(--accent-hover); }
+  .cta-btn:active { transform: scale(0.99); }
+
+  .note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-4);
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+
+  /* ─── Animations ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .results-block { transition: opacity 0.15s ease; }
+  .results-block.flash { opacity: 0.4; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <header class="header">
+    <div class="logo-badge">Caspiana</div>
+    <h1>Калькулятор<br><span>рассрочки</span></h1>
+    <p>Беспроцентная рассрочка до 3 лет.<br>Первый взнос от 30%.</p>
+  </header>
+
+  <div class="card">
+
+    <!-- 1. Площадь -->
+    <div class="section-title">Площадь квартиры</div>
+    <div class="area-grid">
+      <button class="area-btn active" onclick="setArea(this, 30)">
+        <span class="sqm">30</span>
+        <span class="unit">м²</span>
+      </button>
+      <button class="area-btn" onclick="setArea(this, 50)">
+        <span class="sqm">50</span>
+        <span class="unit">м²</span>
+      </button>
+      <button class="area-btn" onclick="setArea(this, 57)">
+        <span class="sqm">57</span>
+        <span class="unit">м²</span>
+      </button>
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- 2. Первоначальный взнос -->
+    <div class="slider-header">
+      <div class="section-title" style="margin:0">Первоначальный взнос</div>
+      <div class="slider-badge" id="pctBadge">30%</div>
+    </div>
+    <div style="margin-top:16px;margin-bottom:8px">
+      <input type="range" id="downSlider" min="30" max="90" value="30" step="5" oninput="updateCalc()">
+    </div>
+    <div class="slider-marks">
+      <span>30%</span><span>50%</span><span>70%</span><span>90%</span>
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- 3. Срок -->
+    <div class="section-title">Срок рассрочки</div>
+    <div class="period-grid">
+      <button class="period-btn active" onclick="setPeriod(this, 12)">
+        <span class="months">12</span>
+        <span class="period-label">мес / 1 год</span>
+      </button>
+      <button class="period-btn" onclick="setPeriod(this, 24)">
+        <span class="months">24</span>
+        <span class="period-label">мес / 2 года</span>
+      </button>
+      <button class="period-btn" onclick="setPeriod(this, 36)">
+        <span class="months">36</span>
+        <span class="period-label">мес / 3 года</span>
+      </button>
+    </div>
+
+    <!-- Results -->
+    <div class="results-block" id="resultsBlock">
+      <div class="results-row">
+        <div>
+          <div class="res-label">Стоимость квартиры</div>
+          <div class="res-val" id="totalPrice">—</div>
+          <div class="res-sub" id="priceInfo"></div>
+        </div>
+        <div>
+          <div class="res-label">Первоначальный взнос</div>
+          <div class="res-val" id="downAmount">—</div>
+          <div class="res-sub" id="downInfo"></div>
+        </div>
+      </div>
+      <div class="results-highlight">
+        <div class="highlight-left">
+          <div class="h-label">Ежемесячный платёж</div>
+          <div class="h-val" id="monthly">—</div>
+        </div>
+        <div class="highlight-right">
+          <div class="h-label">Остаток / срок</div>
+          <div class="h-val" id="remaining">—</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="cta-btn" onclick="handleCTA()">Оставить заявку</button>
+
+    <p class="note">
+      1 м² — 85 000 ₽ · Беспроцентная рассрочка · Без скрытых комиссий
+    </p>
+
+  </div>
+</div>
+
+<script>
+  const PPS = 85000; // price per sqm
+  let area = 30, months = 12, downPct = 30;
+
+  function fmt(n) {
+    return n.toLocaleString('ru-RU') + '\u00a0₽';
+  }
+
+  function setArea(el, a) {
+    document.querySelectorAll('.area-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    area = a;
+    updateCalc();
+  }
+
+  function setPeriod(el, m) {
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    months = m;
+    updateCalc();
+  }
+
+  function updateCalc() {
+    downPct = +document.getElementById('downSlider').value;
+    document.getElementById('pctBadge').textContent = downPct + '%';
+
+    const total   = area * PPS;
+    const down    = Math.round(total * downPct / 100);
+    const rest    = total - down;
+    const monthly = Math.round(rest / months);
+
+    const rb = document.getElementById('resultsBlock');
+    rb.classList.add('flash');
+    setTimeout(() => rb.classList.remove('flash'), 150);
+
+    document.getElementById('totalPrice').textContent  = fmt(total);
+    document.getElementById('priceInfo').textContent   = area + '\u00a0м² × 85\u00a0000\u00a0₽';
+    document.getElementById('downAmount').textContent  = fmt(down);
+    document.getElementById('downInfo').textContent    = downPct + '% от стоимости';
+    document.getElementById('monthly').textContent     = fmt(monthly);
+    document.getElementById('remaining').textContent   = fmt(rest) + ' / ' + months + '\u00a0мес';
+  }
+
+  function handleCTA() {
+    const total   = area * PPS;
+    const down    = Math.round(total * downPct / 100);
+    const rest    = total - down;
+    const monthly = Math.round(rest / months);
+    alert(
+      `Заявка на рассрочку — Caspiana\n\n` +
+      `Площадь: ${area} м²\n` +
+      `Стоимость: ${fmt(total)}\n` +
+      `Первоначальный взнос (${downPct}%): ${fmt(down)}\n` +
+      `Срок: ${months} месяцев\n` +
+      `Ежемесячный платёж: ${fmt(monthly)}\n\n` +
+      `Менеджер свяжется с вами в ближайшее время.`
+    );
+  }
+
+  updateCalc();
+</script>
+</body>
+</html>
